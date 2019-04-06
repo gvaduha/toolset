@@ -344,7 +344,18 @@ globalkeys = gears.table.join(
               {description = "lua execute prompt", group = "awesome"}),
     -- Menubar
     awful.key({ modkey }, "p", function() menubar.show() end,
-              {description = "show the menubar", group = "launcher"})
+              {description = "show the menubar", group = "launcher"}),
+
+    -- Volume
+    awful.key({}, "XF86AudioRaiseVolume", function() volumecfg:up() end),
+    awful.key({}, "XF86AudioLowerVolume", function() volumecfg:down() end),
+    awful.key({}, "XF86AudioLowerVolume", function() volumecfg:toggle() end),
+
+    -- LockScreen
+    awful.key({"Control", "Mod1"}, "Delete", function()
+	    awful.util.spawn("sync")
+	    awful.util.spawn("i3lock -c 000000")
+    end)
 )
 
 clientkeys = gears.table.join(
