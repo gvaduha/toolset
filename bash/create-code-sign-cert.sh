@@ -13,12 +13,14 @@ configFile="$(getConfigFile)"
 echo "fffff"
 echo configFile
 
+#openssl rand -writerand .rnd
 # create CA key and certificate and self-sign it (-new -x509)
-openssl req -new -newkey rsa:2048 -keyout CA_$NAME.key -x509 -days 3653 -out CA_$NAME.crt -config <(echo "$configFile")
+openssl req -new -newkey rsa:2048 -keyout ca_$NAME.key -x509 -days 3653 -out ca_$NAME.crt -config <(echo "$configFile")
 #Creating the request for a certificate here.  Note the -reqexts you need to tell it to pull that section from the main config or it wont do it.
-openssl req -new -newkey rsa:2048 -keyout $NAME.key -x509 -days 3653 -key $NAME.key -reqexts v3_req -out $NAME.csr <(echo "$configFile")
+openssl genrsa -out $NAME.key 2048
+openssl req -new -key ca_$NAME.key -keyout $NAME.key -reqexts v3_req -out $NAME.csr -config <(echo "$configFile")
 #signing the code signing cert with the certificate authority I created.  Note the -extfile this is where you point to the new .cfg you made.
-openssl x509 -req -days 3653 -in $NAME.csr -CA CA_$NAME.crt -CAkey CA_$NAME.key -extensions req_ext -set_serial 01 -out $NAME.crt
+openssl x509 -req -days 3653 -in $NAME.csr -CA ca_$NAME.crt -CAkey ca_$NAME.key -extensions req_ext -set_serial 01 -out $NAME.crt
 #expoort key and crt into a PKCS12
 openssl pkcs12 -export -out $NAME.pfx -inkey $NAME.key -in $NAME.crt
 
@@ -27,7 +29,7 @@ openssl pkcs12 -export -out $NAME.pfx -inkey $NAME.key -in $NAME.crt
 function getConfigFile() {
 cat <<EOF
 HOME			= .
-RANDFILE		= $ENV::HOME/.rnd
+RANDFILE		= .rnd
 oid_section		= new_oids
 [ new_oids ]
 tsa_policy1 = 1.2.3.4.1
@@ -127,9 +129,12 @@ ess_cert_id_chain	= no	# Must the ESS cert id chain be included?
 #subjectKeyIdentifier=hash
 #authorityKeyIdentifier=keyid,issuer
 #proxyCertInfo=critical,language:id-ppl-anyLanguage,pathlen:3,policy:foo
-#[ v3_req ]
-#basicConstraints = CA:FALSE
-#keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+[ v3_req ]
+subjectKeyIdentifier=hash
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature
+extendedKeyUsage = codeSigning, msCodeInd, msCodeCom
+nsCertType = client, email, objsign
 [ v3_ca ]
 # Extensions to add to a certificate request
 subjectKeyIdentifier=hash
