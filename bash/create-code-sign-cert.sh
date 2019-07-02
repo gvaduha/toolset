@@ -19,9 +19,9 @@ openssl req -new -newkey rsa:2048 -keyout ca_$NAME.key -x509 -days 3653 -out ca_
 printf "\n[ -+ Creating request for signer certificate +- ]\n"
 openssl genrsa -out $NAME.key 2048
 openssl req -new -key $NAME.key -reqexts v3_req -out $NAME.csr -config <(getConfigFile)
-# sign the code signing cert with the certificate authority (only v3_req from config)
+# sign the code signing cert with the certificate authority (only v3_req from config ***WITHOUT HEADER***)
 printf "\n[ -+ Signing codesign certificate +- ]\n"
-openssl x509 -req -days 3653 -in $NAME.csr -CA ca_$NAME.crt -CAkey ca_$NAME.key -set_serial 01 -out $NAME.crt -extfile <(getConfigFile | tail -n 6)
+openssl x509 -req -days 3653 -in $NAME.csr -CA ca_$NAME.crt -CAkey ca_$NAME.key -set_serial 01 -out $NAME.crt -extfile <(getConfigFile | tail -n 5)
 #expoort key and crt into a PKCS12
 openssl pkcs12 -export -out $NAME.pfx -inkey $NAME.key -in $NAME.crt
 
