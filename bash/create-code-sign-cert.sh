@@ -10,17 +10,18 @@ else
 fi 
 
 configFile="$(getConfigFile)"
-echo "fffff"
-echo configFile
 
 #openssl rand -writerand .rnd
 # create CA key and certificate and self-sign it (-new -x509)
-openssl req -new -newkey rsa:2048 -keyout ca_$NAME.key -x509 -days 3653 -out ca_$NAME.crt -config <(echo "$configFile")
-#Creating the request for a certificate here.  Note the -reqexts you need to tell it to pull that section from the main config or it wont do it.
+printf "\n[ -+ Creating CA key and certificate +- ]\n"
+openssl req -new -newkey rsa:2048 -keyout ca_$NAME.key -x509 -days 3653 -out ca_$NAME.crt -config <(getConfigFile)
+# create the request for a certificate (-reqexts need to tell it to pull that section from the main config)
+printf "\n[ -+ Creating request for signer certificate +- ]\n"
 openssl genrsa -out $NAME.key 2048
-openssl req -new -key ca_$NAME.key -keyout $NAME.key -reqexts v3_req -out $NAME.csr -config <(echo "$configFile")
-#signing the code signing cert with the certificate authority I created.  Note the -extfile this is where you point to the new .cfg you made.
-openssl x509 -req -days 3653 -in $NAME.csr -CA ca_$NAME.crt -CAkey ca_$NAME.key -extensions req_ext -set_serial 01 -out $NAME.crt
+openssl req -new -key $NAME.key -reqexts v3_req -out $NAME.csr -config <(getConfigFile)
+# sign the code signing cert with the certificate authority (only v3_req from config)
+printf "\n[ -+ Signing codesign certificate +- ]\n"
+openssl x509 -req -days 3653 -in $NAME.csr -CA ca_$NAME.crt -CAkey ca_$NAME.key -set_serial 01 -out $NAME.crt -extfile <(getConfigFile | tail -n 6)
 #expoort key and crt into a PKCS12
 openssl pkcs12 -export -out $NAME.pfx -inkey $NAME.key -in $NAME.crt
 
@@ -81,18 +82,20 @@ x509_extensions	= v3_ca	# The extentions to add to the self signed cert
 string_mask = utf8only
 [ req_distinguished_name ]
 countryName			= Country Name (2 letter code)
-countryName_default		= AU
+countryName_default		= IN
 countryName_min			= 2
 countryName_max			= 2
 stateOrProvinceName		= State or Province Name (full name)
-stateOrProvinceName_default	= Some-State
+stateOrProvinceName_default	= Sri
 localityName			= Locality Name (eg, city)
 0.organizationName		= Organization Name (eg, company)
-0.organizationName_default	= Internet Widgits Pty Ltd
+0.organizationName_default	= gvaduha@gmail.com
 organizationalUnitName		= Organizational Unit Name (eg, section)
 commonName			= Common Name (e.g. server FQDN or YOUR name)
+commonName_default  = gvaduha@gmail.com
 commonName_max			= 64
 emailAddress			= Email Address
+emailAddress_default	= gvaduha@gmail.com
 emailAddress_max		= 64
 [ req_attributes ]
 challengePassword		= A challenge password
@@ -129,24 +132,17 @@ ess_cert_id_chain	= no	# Must the ESS cert id chain be included?
 #subjectKeyIdentifier=hash
 #authorityKeyIdentifier=keyid,issuer
 #proxyCertInfo=critical,language:id-ppl-anyLanguage,pathlen:3,policy:foo
-[ v3_req ]
-subjectKeyIdentifier=hash
-basicConstraints = CA:FALSE
-keyUsage = digitalSignature
-extendedKeyUsage = codeSigning, msCodeInd, msCodeCom
-nsCertType = client, email, objsign
 [ v3_ca ]
-# Extensions to add to a certificate request
-subjectKeyIdentifier=hash
-basicConstraints = CA:FALSE
-keyUsage = digitalSignature
-extendedKeyUsage = codeSigning, msCodeInd, msCodeCom
-nsCertType = client, email, objsign
-[ req_ext ]
 subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid:always,issuer
 basicConstraints = CA:true
-subjectAltName = @alt_names
+#extendedKeyUsage = codeSigning, msCodeInd, msCodeCom
+[ v3_req  ] 
+subjectKeyIdentifier=hash
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature
+extendedKeyUsage = codeSigning, msCodeInd, msCodeCom
+nsCertType = client, email, objsign
 EOF
 }
 
