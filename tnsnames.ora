@@ -1,0 +1,10 @@
+mydb =
+	(DESCRIPTION=
+		(ADDRESS=
+			(PROTOCOL=TCP)
+			(HOST=myhost)
+			(PORT=1521})
+		)
+		(CONNECT_DATA=
+			(SERVER=DEDICATED)(SID=myname)))
+	)
