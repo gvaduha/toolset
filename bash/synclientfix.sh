@@ -1,3 +1,4 @@
+#! /bin/sh
 synclient AreaBottomEdge=4400
 
 synclient FingerHigh=65
