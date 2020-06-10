@@ -1,3 +1,4 @@
+echo "FOR DEFAULT FZF SETTINGS USE /usr/share/doc/fzf/examples/key-bindings.bash INSTEAD
 #     ____      ____
 #    / __/___  / __/
 #   / /_/_  / / /_
