@@ -20,5 +20,6 @@
         email = gvaduha@gmail.com
         name = gvaduha
 [credential]
-        helper = cache
+        #helper = cache
         #helper = manager
+	helper = !/usr/bin/gh auth git-credential
