@@ -8,6 +8,9 @@ source /usr/share/doc/fzf/examples/key-bindings.bash
 source /usr/share/doc/fzf/examples/completion.bash
 
 #transmission-remote
-alias tsm-add='transmission-remote -a "$1"'
-alias tsm-addhash='transmission-remote -a "magnet:?xt=urn:btih:$1"'
+alias tsm-add='transmission-remote -a $1'
+function tsm-addhash() {
+   transmission-remote -a "magnet:?xt=urn:btih:$1"
+}
 alias tsm-ls='transmission-remote -l'
+ 
