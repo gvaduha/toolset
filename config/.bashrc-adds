@@ -6,3 +6,7 @@ fi
 #FZF bash configuration
 source /usr/share/doc/fzf/examples/key-bindings.bash
 source /usr/share/doc/fzf/examples/completion.bash
+
+#transmission-remote
+alias tsm-add='transmission-remote -a "$1"'
+alias tsm-ls='transmission-remote -l'
